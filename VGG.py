@@ -4,7 +4,7 @@ import chainer.links as L
 import chainer.functions as F
 
 
-class VGGNet(chainer.Chain):
+class VGG(chainer.Chain):
 
     """
     VGGNet
@@ -12,24 +12,24 @@ class VGGNet(chainer.Chain):
     """
 
     def __init__(self):
-        super(VGGNet, self).__init__(
-            conv1_1=L.Convolution2D(3, 64, 3, stride=1, pad=1),
-            conv1_2=L.Convolution2D(64, 64, 3, stride=1, pad=1),
+        super(VGG, self).__init__(
+            conv1_1 = L.Convolution2D(3, 64, 3, stride=1, pad=1),
+            conv1_2 = L.Convolution2D(64, 64, 3, stride=1, pad=1),
 
-            conv2_1=L.Convolution2D(64, 128, 3, stride=1, pad=1),
-            conv2_2=L.Convolution2D(128, 128, 3, stride=1, pad=1),
+            conv2_1 = L.Convolution2D(64, 128, 3, stride=1, pad=1),
+            conv2_2 = L.Convolution2D(128, 128, 3, stride=1, pad=1),
 
-            conv3_1=L.Convolution2D(128, 256, 3, stride=1, pad=1),
-            conv3_2=L.Convolution2D(256, 256, 3, stride=1, pad=1),
-            conv3_3=L.Convolution2D(256, 256, 3, stride=1, pad=1),
+            conv3_1 = L.Convolution2D(128, 256, 3, stride=1, pad=1),
+            conv3_2 = L.Convolution2D(256, 256, 3, stride=1, pad=1),
+            conv3_3 = L.Convolution2D(256, 256, 3, stride=1, pad=1),
 
-            conv4_1=L.Convolution2D(256, 512, 3, stride=1, pad=1),
-            conv4_2=L.Convolution2D(512, 512, 3, stride=1, pad=1),
-            conv4_3=L.Convolution2D(512, 512, 3, stride=1, pad=1),
+            conv4_1 = L.Convolution2D(256, 512, 3, stride=1, pad=1),
+            conv4_2 = L.Convolution2D(512, 512, 3, stride=1, pad=1),
+            conv4_3 = L.Convolution2D(512, 512, 3, stride=1, pad=1),
 
-            conv5_1=L.Convolution2D(512, 512, 3, stride=1, pad=1),
-            conv5_2=L.Convolution2D(512, 512, 3, stride=1, pad=1),
-            conv5_3=L.Convolution2D(512, 512, 3, stride=1, pad=1),
+            conv5_1 = L.Convolution2D(512, 512, 3, stride=1, pad=1),
+            conv5_2 = L.Convolution2D(512, 512, 3, stride=1, pad=1),
+            conv5_3 = L.Convolution2D(512, 512, 3, stride=1, pad=1),
 
             fc6=L.Linear(25088, 4096),
             fc7=L.Linear(4096, 4096),
