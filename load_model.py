@@ -5,7 +5,7 @@ from chainer import cuda
 from chainer import serializers
 from chainer import Variable
 from VGG import VGG
-from VGGRPN import VGGRPN
+from vggrpn import VGGRPN
 
 
 def load_model(filename, model):
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         setattr(vgg_rpn, attr[0], layer)
 
     # Save the new VGG RPN model to file
-    save_model('VGGRPN.model', vgg_rpn)
+    save_model('vggrpn.model', vgg_rpn)
 
     print('Done')
 
