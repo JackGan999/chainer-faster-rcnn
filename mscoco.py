@@ -27,14 +27,12 @@ class MSCOCO:
                 if filename in self.annotations:
                     self.annotations[filename].append(annotation)
                 else:
-                    self.annotations[filename] = []
-                print(self.annotations[filename])
+                    self.annotations[filename] = [annotation]
 
     def load_images(self, path):
         for f in os.listdir(path):
             if os.path.isfile(os.path.join(path, f)):
                 self.files[f] = cv2.imread(os.path.join(path, f))
-                print('Loaded image with shape {}'.format(self.files[f].shape))  # In the order, height, width, channels
 
     def _load_images(self, path):
         """
