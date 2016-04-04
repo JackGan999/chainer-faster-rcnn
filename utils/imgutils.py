@@ -37,13 +37,13 @@ def write_img(filename, img):
 
 
 def rnd_color():
-  """Return a random RGB color."""
-  r = random.randint(0, 255)
-  g = random.randint(0, 255)
-  b = random.randint(0, 255)
-  return r, g, b
+    """Return a random RGB color."""
+    r = random.randint(0, 255)
+    g = random.randint(0, 255)
+    b = random.randint(0, 255)
+    return r, g, b
 
 
 def _to_int(x):
-  """Try to parse the given value as an int if it already isn't."""
-  return x if isinstance(x, int) else int(x)
+    """Try to parse the given value as an int if it already isn't."""
+    return x if isinstance(x, int) else int(x)
