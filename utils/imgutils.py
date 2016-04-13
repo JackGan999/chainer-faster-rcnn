@@ -3,9 +3,9 @@ import numpy as np
 import cv2 as cv
 
 
-red = (255, 0, 0)
+blue = (255, 0, 0)
 green = (0, 255, 0)
-blue = (0, 0, 255)
+red = (0, 0, 255)
 black = (0, 0, 0)
 white = (255, 255, 255)
 
@@ -23,8 +23,10 @@ def draw_line(img, x1, y1, x2, y2, color=white, thickness=1):
     return img
 
 
-def draw_box(img, x1, y1, x2, y2, color=green, thickness=1):
+def draw_box(img, x1, y1, x2, y2, color=None, thickness=1):
     """Draw a rectangle on the given image."""
+    if color is None:
+        color = rnd_color()
     x1, y1, x2, y2 = map(_to_int, [x1, y1, x2, y2])
     cv.rectangle(img, (x1, y1), (x2, y2), color, thickness)
     return img
