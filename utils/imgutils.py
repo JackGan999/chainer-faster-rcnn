@@ -3,6 +3,7 @@ import numpy as np
 import cv2 as cv
 
 
+# Basic NumPy colors
 blue = (255, 0, 0)
 green = (0, 255, 0)
 red = (0, 0, 255)
