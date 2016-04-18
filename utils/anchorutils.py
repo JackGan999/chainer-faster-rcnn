@@ -1,22 +1,51 @@
 import cv2 as cv
 import numpy as np
 from chainer.cuda import cupy as cp
-
-import cupyutils
+from utils import cupyutils
+from utils import imgutils
 
 
 xp = None
 
 
-def generate_inside_anchors(width, height):
+def generate_inside_anchors(width, height, feat_stride=16, allowed_offset=None, gpu=True):
     """Return a set of anchors for a given image dimension.
     For performance improvement, anchors should be generated once and be reused.
     However, it assumes that the dimensions are the same during the whole training and
     the testing process.
     """
-    # TODO: Implement the function
     # TODO: Allow anchors to be slighly outside the image and still be included
-    return NotImplementedError()
+    global xp
+    xp = cp if gpu else np
+
+    anchors = generate_anchors(gpu=gpu)
+
+    # Apply the 9 anchors to all positions on the filter map
+    feat_map_width = width / feat_stride
+    feat_map_height = height / feat_stride
+    shift_x = xp.arange(0, feat_map_width) * feat_stride
+    shift_y = xp.arange(0, feat_map_height) * feat_stride
+
+    if gpu:
+        shift_x, shift_y = cupyutils.meshgrid(shift_x, shift_y)
+    else:
+        shift_x, shift_y = np.meshgrid(shift_x, shift_y)
+
+    shifts = xp.vstack((shift_x.ravel(), shift_y.ravel(), shift_x.ravel(), shift_y.ravel())).transpose()
+
+    A = len(anchors)  # 9
+    K = shifts.shape[0]
+    all_anchors = (anchors.reshape((1, A, 4)) + shifts.reshape((1, K, 4)).transpose((1, 0, 2)))
+    shifts = shifts.reshape((1, K, 4)).transpose((1, 0, 2))
+    all_anchors = all_anchors.reshape((K * A, 4))
+    total_anchors = int(K * A)
+
+    anchors_inside = []
+    for a in all_anchors:
+        if _anchor_inside(a, width, height):
+            anchors_inside.append(a)
+
+    return anchors_inside
 
 
 def generate_anchors(base_size=16, ratios=[0.5, 1, 2], scales=[8, 16, 32], gpu=True):
@@ -75,6 +104,9 @@ def _scale_enum(anchor, scales):
     ws = w * scales
     hs = h * scales
     anchors = _mkanchors(ws, hs, x_ctr, y_ctr)
-    r
+    return anchors
 
 
+def _anchor_inside(anchor, img_width, img_height):
+    """Return True if the given anchor is completely inside the given image."""
+    return (anchor[0] >= 0) & (anchor[1] >= 0) & (anchor[2] < img_width) & (anchor[3] < img_height)

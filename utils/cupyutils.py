@@ -1,9 +1,10 @@
 from chainer.cuda import cupy
 
 
-def meshgrid(x, y):
+def meshgrid(*xi):
     """Simplified implementation of numpy.meshgrid using cupy."""
     s0 = (1, 1)
+    x, y = xi
 
     output = [cupy.asanyarray(x_tmp).reshape(s0[:i] + (-1,) + s0[i + 1::]) for i, x_tmp in enumerate(xi)]
     # TODO: Alternatives to list comprehension?
