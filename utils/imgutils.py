@@ -14,7 +14,8 @@ white = (255, 255, 255)
 def draw_empty(width, height):
     """Create an empty black image with the given width and height."""
     num_channels = 3
-    return np.zeros((height, width, num_channels), np.uint8) # Note the order of the width and height
+    # Note the order of the width and height below
+    return np.zeros((height, width, num_channels), np.uint8)
 
 
 def draw_line(img, x1, y1, x2, y2, color=white, thickness=1):

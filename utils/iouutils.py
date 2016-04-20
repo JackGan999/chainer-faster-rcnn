@@ -1,13 +1,22 @@
 import numpy as np
 from chainer.cuda import cupy as cp
 
-
 # TODO Hardcoded to use GPU
 xp = cp
 
 
+def ious_slow(anchors, gt_boxes):
+    """Return a set IOU(Intersection-Over-Union)s for ground-truth box for
+    each anchor. Naive implementation.
+    """
+    return [iou_naive(anchor, gt_box) for anchor in anchors
+            for gt_box in gt_boxes]
+
+
 def iou_naive(anchor, gt_box):
-    """Return the IOU for the given anchor ground-truth box pair. Naive/Slow."""
+    """Return the IOU for the given anchor ground-truth box pair.
+    Naive/Slow.
+    """
     anchor_x1 = anchor[0]
     anchor_y1 = anchor[1]
     anchor_x2 = anchor[2]
@@ -18,7 +27,10 @@ def iou_naive(anchor, gt_box):
     gt_box_x2 = gt_box[2]
     gt_box_y2 = gt_box[3]
 
-    area_intersection = max(0, min(anchor_x2, gt_box_x2) - max(anchor_x1, gt_box_x1)) * max(0, min(anchor_y2, gt_box_y2) - max(anchor_y1, gt_box_y1))
+    area_intersection = (max(0, min(anchor_x2, gt_box_x2) -
+                         max(anchor_x1, gt_box_x1)) *
+                         max(0, min(anchor_y2, gt_box_y2) -
+                         max(anchor_y1, gt_box_y1)))
 
     area_anchor = (anchor_x2 - anchor_x1) * (anchor_y2 - anchor_y1)
     area_gt_box = (gt_box_x2 - gt_box_x1) * (gt_box_y2 - gt_box_y1)
@@ -29,40 +41,41 @@ def iou_naive(anchor, gt_box):
 
 
 def ious(boxes, query_boxes):
-    """Return a set IOU(Intersection-Over-Union)s for ground-truth box for each anchor. Naive implementation."""
+    """Return a set IOU(Intersection-Over-Union)s for ground-truth box for
+    each anchor. Naive implementation.
+    """
     # TODO: Improve speed, e.g. test range() instead of enumerate()
+    overlaps = xp.zeros((boxes.shape[0], query_boxes.shape[0]),
+                        dtype=np.float32)
 
-    overlaps = xp.zeros((boxes.shape[0], query_boxes.shape[0]), dtype=np.float32)
-
-    for q_i, q in enumarate(query_boxes):
-        q_area = (q[2] - q[0] + 1) * (q[3] - q[1] + 1) # Area of the query box
-        for b_i, b in enumarate(boxes):
+    for q_i, q in enumerate(query_boxes):
+        q_area = (q[2] - q[0] + 1) * (q[3] - q[1] + 1)  # Area of the query box
+        for b_i, b in enumerate(boxes):
             iw = min(b[2], q[2]) - max(b[0], q[0]) + 1
             if iw > 0:
-                min(b[3], q[3]) - max(b[1], q[1]) + 1
+                ih = min(b[3], q[3]) - max(b[1], q[1]) + 1
                 if ih > 0:
-                    ua = (b[2] - b[0] + 1) * (b[3] - b[1] + 1) + q_area - iw * ih
+                    ua = ((b[2] - b[0] + 1) * (b[3] - b[1] + 1) +
+                          q_area - iw * ih)
                     overlaps[b_i, q_i] = iw * ih / ua
 
     return overlaps
 
 
-def ious_slow(anchors, gt_boxes):
-    """Return a set IOU(Intersection-Over-Union)s for ground-truth box for each anchor. Naive implementation."""
-    return [iou(anchor, gt_box) for anchor in anchors for gt_box in gt_boxes]
-
-
 def iou_gpu_0(anchor, gt_box):
-    """Compute the intersection over union rate for the given anchor and a gt_box.
-    Not very fast, but works...
+    """Compute the intersection over union rate for the given anchor and a
+    gt_box. Not very fast, but works...
     """
     return cp.ElementwiseKernel(
         'raw float32 anchor, raw float32 gt_box',
         'float32 iou',
         '''
-            float inters = max(0.0, min(anchor[2], gt_box[2]) - max(anchor[0], gt_box[0])) *
-                max(0.0, min(anchor[3], gt_box[3]) - max(anchor[1], gt_box[1]));
-            float anchor_area = (anchor[2] - anchor[0]) * (anchor[3] - anchor[1]);
+            float inters = max(0.0, min(anchor[2], gt_box[2]) -
+                max(anchor[0], gt_box[0])) *
+                max(0.0, min(anchor[3], gt_box[3]) -
+                max(anchor[1], gt_box[1]));
+            float anchor_area = (anchor[2] - anchor[0]) *
+                (anchor[3] - anchor[1]);
             float gt_area = (gt_box[2] - gt_box[0]) * (gt_box[3] - gt_box[1]);
             float union_area = anchor_area + gt_area - inters;
 
@@ -87,7 +100,9 @@ def ious_gpu_1(boxes, query_boxes):
     print(ious)
 
     cp.ElementwiseKernel(
-    'raw float32 boxes, float32 query_boxes, raw int32 num_boxes, raw int32 num_query_boxes',
+    '''raw float32 boxes, float32 query_boxes, raw int32 num_boxes,
+    raw int32 num_query_boxes
+    ''',
     'raw float32 ious',
     '''
         for (int q = 0; q < num_query_boxes; ++q) {
@@ -134,7 +149,9 @@ def ious_gpu_2(boxes, query_boxes):
     print(ious)
 
     cp.ElementwiseKernel(
-    'raw float32 boxes, raw float32 query_boxes, raw int32 num_boxes, raw int32 num_query_boxes',
+    '''raw float32 boxes, raw float32 query_boxes, raw int32 num_boxes,
+    raw int32 num_query_boxes
+    ''',
     'raw float32 ious',
     '''
         for (int q = 0; q < num_query_boxes; ++q) {

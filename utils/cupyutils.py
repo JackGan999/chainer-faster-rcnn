@@ -6,7 +6,8 @@ def meshgrid(*xi):
     s0 = (1, 1)
     x, y = xi
 
-    output = [cupy.asanyarray(x_tmp).reshape(s0[:i] + (-1,) + s0[i + 1::]) for i, x_tmp in enumerate(xi)]
+    output = [cupy.asanyarray(x_tmp).reshape(s0[:i] + (-1,) + s0[i + 1::])
+              for i, x_tmp in enumerate(xi)]
     # TODO: Alternatives to list comprehension?
     shape = [x.size for x in output]
 

@@ -1,18 +1,16 @@
-import cv2 as cv
 import numpy as np
 from chainer.cuda import cupy as cp
 from utils import cupyutils
-from utils import imgutils
-
 
 xp = None
 
 
-def generate_inside_anchors(width, height, feat_stride=16, allowed_offset=None, gpu=True):
+def generate_inside_anchors(width, height, feat_stride=16, allowed_offset=None,
+                            gpu=True):
     """Return a set of anchors for a given image dimension.
-    For performance improvement, anchors should be generated once and be reused.
-    However, it assumes that the dimensions are the same during the whole training and
-    the testing process.
+    For performance improvement, anchors should be generated once and be
+    reused. However, it assumes that the dimensions are the same during the
+    whole training and the testing process.
     """
     # TODO: Allow anchors to be slighly outside the image and still be included
     global xp
@@ -31,14 +29,15 @@ def generate_inside_anchors(width, height, feat_stride=16, allowed_offset=None, 
     else:
         shift_x, shift_y = np.meshgrid(shift_x, shift_y)
 
-    shifts = xp.vstack((shift_x.ravel(), shift_y.ravel(), shift_x.ravel(), shift_y.ravel())).transpose()
+    shifts = xp.vstack((shift_x.ravel(), shift_y.ravel(), shift_x.ravel(),
+                       shift_y.ravel())).transpose()
 
     A = len(anchors)  # 9
     K = shifts.shape[0]
-    all_anchors = (anchors.reshape((1, A, 4)) + shifts.reshape((1, K, 4)).transpose((1, 0, 2)))
+    all_anchors = (anchors.reshape((1, A, 4)) + shifts.reshape((1, K, 4))
+                   .transpose((1, 0, 2)))
     shifts = shifts.reshape((1, K, 4)).transpose((1, 0, 2))
     all_anchors = all_anchors.reshape((K * A, 4))
-    total_anchors = int(K * A)
 
     anchors_inside = []
     for a in all_anchors:
@@ -48,7 +47,8 @@ def generate_inside_anchors(width, height, feat_stride=16, allowed_offset=None, 
     return anchors_inside
 
 
-def generate_anchors(base_size=16, ratios=[0.5, 1, 2], scales=[8, 16, 32], gpu=True):
+def generate_anchors(base_size=16, ratios=[0.5, 1, 2], scales=[8, 16, 32],
+                     gpu=True):
     """Generate anchor (reference) windows by enumerating aspect ratios X
     scales wrt a reference (0, 0, 15, 15) window."""
     global xp
@@ -60,7 +60,8 @@ def generate_anchors(base_size=16, ratios=[0.5, 1, 2], scales=[8, 16, 32], gpu=T
 
     ratio_anchors = _ratio_enum(base_anchor, ratios)
 
-    anchors = xp.vstack([_scale_enum(ratio_anchors[i, :], scales) for i in range(ratio_anchors.shape[0])])
+    anchors = xp.vstack([_scale_enum(ratio_anchors[i, :], scales)
+                        for i in range(ratio_anchors.shape[0])])
 
     return anchors
 
@@ -108,5 +109,7 @@ def _scale_enum(anchor, scales):
 
 
 def _anchor_inside(anchor, img_width, img_height):
-    """Return True if the given anchor is completely inside the given image."""
-    return (anchor[0] >= 0) & (anchor[1] >= 0) & (anchor[2] < img_width) & (anchor[3] < img_height)
+    """Return True if the given anchor is completely inside the given image.
+    """
+    return ((anchor[0] >= 0) & (anchor[1] >= 0) & (anchor[2] < img_width) &
+            (anchor[3] < img_height))
