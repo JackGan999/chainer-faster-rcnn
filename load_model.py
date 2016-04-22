@@ -1,7 +1,3 @@
-import chainer
-import argparse
-import numpy as np
-from chainer import cuda
 from chainer import serializers
 from chainer import Variable
 from VGG import VGG
@@ -22,9 +18,8 @@ def save_model(filename, model):
 
 
 if __name__ == '__main__':
-    """ Makes a copy of a (trained) VGG model to a VGG RPN model
+    """Makes a copy of a (trained) VGG model to a VGG RPN model
     and saved it to a file named 'VGGRPN.model'
-
     """
     # Create an empty VGG model (w random weights)
     vgg = VGG()
@@ -36,7 +31,7 @@ if __name__ == '__main__':
     vgg_rpn = VGGRPN()
 
     # Copy the shared parameters from the VGG model to the VGG RPN model
-    for attr in vgg.namedlinks(skipself=True):  # Skip self to ignore the super link
+    for attr in vgg.namedlinks(skipself=True):
         print('Copying layer {:s}'.format(attr[0][1:]))
         layer = getattr(vgg_rpn, attr[0][1:])
         layer.W = Variable(attr[1].W.data)
@@ -47,4 +42,3 @@ if __name__ == '__main__':
     save_model('vggrpn.model', vgg_rpn)
 
     print('Done')
-
