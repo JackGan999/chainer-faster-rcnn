@@ -8,7 +8,9 @@ An experimental repository in progress with Chainer code to run the Faster R-CNN
 - [Original MATLAB implementaion, GitHub](https://github.com/ShaoqingRen/faster_rcnn)
 - [Python implementation (~10% slower), GitHub](https://github.com/rbgirshick/py-faster-rcnn)
 
-## Challenges
+## Faster R-CNN with Chainer
+
+### Challenges
 
 - Implement the forward and backward methods for the Multi-Task Loss using Chainer.
   - First, make it work. Then optimize for performance in terms of speed.
@@ -16,3 +18,14 @@ An experimental repository in progress with Chainer code to run the Faster R-CNN
 - Data caching, reuse on GPU for performance reasons.
   - E.g. initial anchor creation.
 
+### Dataset
+
+Dataset being used at the moment is MSCOCO which can be downloaded [here](http://mscoco.org/dataset/#download).
+
+### Test
+
+Tests are implemented using `unittest`. To run a test, run the following command from the project root.
+
+```bash
+python -m test/<filename without the file extension .py>
+```
