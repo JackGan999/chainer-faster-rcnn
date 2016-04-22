@@ -60,7 +60,6 @@ if __name__ == "__main__":
     anchors = anchorutils.generate_inside_anchors(
             img_width, img_height, feat_stride=16, allowed_offset=None,
             gpu=True)
-
     print('Anchors inside image with dimensions ({w}, {h}): {num_anchors}'
           .format(w=img_width, h=img_height, num_anchors=len(anchors)))
     print('Anchor array module: {}'.format(xp.get_array_module(anchors)))
@@ -80,6 +79,9 @@ if __name__ == "__main__":
             print("image.shape: {}".format(x.data.shape))
             t = Variable(gtboxes)
             model.zerograds()
-            loss = model(x, t, anchors)
+            # TODO: Make sure we need to reinitialize the anchors here as
+            # Chainer variables, otherwise do it once in the beginning
+            anchors_var = Variable(anchors)
+            loss = model(x, t, anchors_var)
             print('Loss: {}'.format(loss))
             # optimizer.update(model, x, t)

@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+import chainer
 from chainer.cuda import cupy as cp
 
 from utils import imgutils
@@ -32,8 +33,10 @@ class TestAnchorUtils(unittest.TestCase):
         arr_module = cp.get_array_module(anchors_inside)
         if gpu:
             self.assertTrue(arr_module == cp)
+            self.assertTrue(isinstance(anchors_inside, chainer.cuda.ndarray))
         else:
             self.assertTrue(arr_module == np)
+            self.assertTrue(isinstance(anchors_inside, numpy.ndarray))
 
         print('Anchors inside: {}'.format(len(anchors_inside)))
 

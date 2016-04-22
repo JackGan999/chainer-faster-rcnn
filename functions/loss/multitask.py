@@ -47,9 +47,10 @@ class MultiTask(function.Function):
     def check_type_forward(self, in_types):
         # TODO: Also check the dimensions of the given anchors
         type_check.expect(
-            in_types.size() == 3,
+            in_types.size() == 4,
             in_types[0].shape[2] == in_types[1].shape[2],  # e.g. 40
-            in_types[0].shape[3] == in_types[1].shape[3]  # e.g. 27
+            in_types[0].shape[3] == in_types[1].shape[3],  # e.g. 27
+            in_types[2].shape[1] == 4  # Anchor dimensions
         )
 
     def forward_cpu(self, inputs):
@@ -69,7 +70,7 @@ class MultiTask(function.Function):
         print('Downsampled width: {}'.format(width))
         print('Downsampled height: {}'.format(height))
         print('Ground truth boxes (target): {}'.format(gt_boxes))
-        print('Inside Anchors: {}'.format(general_anchors.shape))
+        print('Inside Anchors: {}'.format(anchors.shape))
 
         feat_stride = 1 / self.spatial_scale
         print('feat_stride: {}'.format(feat_stride))
@@ -84,6 +85,8 @@ class MultiTask(function.Function):
         print(overlaps)
         print('IOU Overlap Non-Zero Counts: {}'.format(xp.count_nonzero(overlaps)))
         print('Ground Truth Boxes Shape: {}'.format(overlaps.shape))
+
+        # TODO: Continue here...
 
         # Select the ground truth box with highest IOU for each anchor
         argmax_overlaps = overlaps.argmax(axis=1)
