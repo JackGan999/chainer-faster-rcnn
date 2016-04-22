@@ -4,10 +4,10 @@ import time
 import math
 import numpy as np
 from chainer.cuda import cupy as cp
-from utils import bboxutils
+from utils import iouutils
 
 
-class IOUTest(unittest.TestCase):
+class TestIouUtils(unittest.TestCase):
 
     def setUp(self):
         anchors = cp.arange(1000, dtype=cp.float32)
@@ -23,14 +23,14 @@ class IOUTest(unittest.TestCase):
     def test_acc_gpu(self):
         boxes = cp.array([[0, 0, 10, 10], [2, 3, 4, 5]], dtype=cp.float32)
         query_boxes = cp.array([[0, 0, 10, 10], [2, 2, 15, 15], [5, 5, 15, 15], [20, 20, 22, 30]], dtype=cp.float32)
-        ious = bboxutils.ious(boxes, query_boxes)
+        ious = iouutils.ious(boxes, query_boxes)
         print(ious)
         print(ious.shape)
 
     def test_speed_gpu(self):
         a = cp.array([[1,2,1,2], [3,4,3,4], [5,5,5,5]], dtype=cp.float32)
         b = cp.array([[10,2,10,2], [1,1,11,1]], dtype=cp.float32)
-        ans = bboxutils.ious(a, b)
+        ans = iouutils.ious(a, b)
         print(ans)
         print(ans.shape)
 
