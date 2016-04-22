@@ -1,8 +1,11 @@
 import unittest
 
-import cv2 as cv
+import numpy as np
+from chainer.cuda import cupy as cp
+
 from utils import imgutils
 from utils import anchorutils
+
 
 class TestAnchorUtils(unittest.TestCase):
 
@@ -16,11 +19,21 @@ class TestAnchorUtils(unittest.TestCase):
 
         img_width = 640
         img_height = 427
-        feat_stride = 16 # 2^4 as in VGG16
+        feat_stride = 16  # 2^4 as in VGG16
 
         # Generate the anchors, for the given image properties
         # This should only be done once for our dataset for performance reasons
-        anchors_inside = anchorutils.generate_inside_anchors(img_width, img_height, feat_stride=feat_stride, allowed_offset=None, gpu=gpu)
+        anchors_inside = anchorutils.generate_inside_anchors(
+            img_width, img_height, feat_stride=feat_stride,
+            allowed_offset=None, gpu=gpu)
+
+        # Assert that the returned list of anchors is either on the CPU
+        # or the GPU depending on the given parameters
+        arr_module = cp.get_array_module(anchors_inside)
+        if gpu:
+            self.assertTrue(arr_module == cp)
+        else:
+            self.assertTrue(arr_module == np)
 
         print('Anchors inside: {}'.format(len(anchors_inside)))
 
@@ -46,7 +59,8 @@ class TestAnchorUtils(unittest.TestCase):
             print('Saving image to disk...')
             img = imgutils.draw_empty(img_width, img_height)
             for anchor in anchors_inside:
-                  imgutils.draw_box(img, anchor[0], anchor[1], anchor[2], anchor[3])
+                imgutils.draw_box(img, anchor[0], anchor[1], anchor[2],
+                                  anchor[3])
             imgutils.write_img('test_anchor_generation.jpg', img)
 
 
