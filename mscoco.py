@@ -1,9 +1,8 @@
 import os
 import cv2
 import numpy as np
-import psutil
-import profiler
 import json
+from utils import profiler
 
 
 def _filename_from_id(id, group='train'):
@@ -35,26 +34,32 @@ class MSCOCO:
                 self.files[f] = cv2.imread(os.path.join(path, f))
 
     def _load_images(self, path):
+        """ Use later. Not used at the moment since we want to use dictionaries a
+        nd not lists.
         """
-        Use later. Not used at the moment since we want to use dictionaries and not lists.
-        """
-        self.files = [f for f in os.listdir(self.target_dir) if os.path.isfile(os.path.join(self.target_dir, f))]
-        for file in files:
-            train.append(cv2.imread(os.path.join(self.target_dir, file)))
-        train = np.array(train).astype(np.float32).reshape((len(train), self.num_channels, self.width, self.height)) / 255
+        raise NotImplementedError('_load_images')
 
-
-    def image(self, id, group='train'):
+    def image(self, id, group='train', normalized=True):
         filename = _filename_from_id(id, group)
         image = self.files[filename]
         height, width, channels = image.shape
-        image = np.array([image]).astype(np.float32).reshape((1, channels, width, height)) / 255
+
+        # Reshape to Chainer preferred format,
+        # i.e. (batch_size, n_chanels, width, height)
+        image = np.array([image]).astype(np.float32) \
+                  .reshape((1, channels, width, height))
+
+        if normalized:
+            image /= 255
+
         annotation = self.annotations[filename]
         return image, annotation
 
 
 if __name__ == '__main__':
-    print('Memory usage (before): {} MB'.format(profiler.memory_usage(format='mb')))
+    # NOTE: Run a local test when it is run as main
+    print('Memory usage (before): {} MB'
+          .format(profiler.memory_usage(format='mb')))
     coco = MSCOCO()
     print('Loading images...')
     coco.load_images('./data/coco/images/test')
@@ -62,7 +67,10 @@ if __name__ == '__main__':
     print('Loading annotations...')
     coco.load_annotations('./data/coco/annotations/233833_annotations.json')
     print('Done loading annotations')
-    print('Memory usage (after): {} MB'.format(profiler.memory_usage(format='mb')))
-    image, ann = coco.image('233833')
+    print('Memory usage (after): {} MB'
+          .format(profiler.memory_usage(format='mb')))
+    image, annotations = coco.image('233833')
     print(image.shape)
-    print(ann)
+    print(annotations)
+    bboxs = [a['bbox'] for a in annotations]
+    print(bboxs)
