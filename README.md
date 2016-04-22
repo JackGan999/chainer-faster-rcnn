@@ -27,5 +27,5 @@ Dataset being used at the moment is MSCOCO which can be downloaded [here](http:/
 Tests are implemented using `unittest`. To run a test, run the following command from the project root.
 
 ```bash
-python -m test/<filename without the file extension .py>
+python -m test.<filename without the file extension .py>
 ```
