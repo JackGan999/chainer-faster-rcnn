@@ -39,12 +39,20 @@ def generate_inside_anchors(width, height, feat_stride=16, allowed_offset=None,
     shifts = shifts.reshape((1, K, 4)).transpose((1, 0, 2))
     all_anchors = all_anchors.reshape((K * A, 4))
 
+    # TODO
+    # In the original paper, they get the indices here, e.g.
+    # inds_inside = ... and then the anchors
+    # Following list comprehension works but is very slow, replace it with
+    # something faste maybe cupy.copy,
+    # xp.copyto(all_anchors, all_anchors.dtype(0), where=...?
     anchors_inside = []
     for a in all_anchors:
         if _anchor_inside(a, width, height):
             anchors_inside.append(a)
 
-    return anchors_inside
+    final_anchors = xp.asarray(anchors_inside, dtype=xp.float32)
+
+    return final_anchors
 
 
 def generate_anchors(base_size=16, ratios=[0.5, 1, 2], scales=[8, 16, 32],
