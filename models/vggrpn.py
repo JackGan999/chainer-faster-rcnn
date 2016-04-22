@@ -1,8 +1,9 @@
 import chainer
 import chainer.links as L
 import chainer.functions as F
+from functions.loss.multitask import multitask
 
-from functions.multitask import multitask
+F.multitask = multitask
 
 
 class VGGRPN(chainer.Chain):
@@ -102,7 +103,7 @@ class VGGRPN(chainer.Chain):
 
             bbox = self.rpn_bbox(h)
 
-            self.loss = multitask(cls, bbox, anchors, t)
+            self.loss = F.multitask(cls, bbox, anchors, t)
 
             return self.loss
 

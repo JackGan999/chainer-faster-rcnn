@@ -1,6 +1,6 @@
 import chainer
 from chainer import Variable, optimizers, serializers
-from vggrpn import VGGRPN
+from models.vggrpn import VGGRPN
 from mscoco import MSCOCO
 from utils import anchorutils
 
